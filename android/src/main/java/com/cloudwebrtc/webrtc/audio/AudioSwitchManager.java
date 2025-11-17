@@ -7,7 +7,7 @@ import android.media.AudioManager;
 import android.os.Build;
 import android.os.Handler;
 import android.os.Looper;
-
+import android.util.Log;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
@@ -289,36 +289,42 @@ public class AudioSwitchManager {
         if (configuration.get("manageAudioFocus") instanceof Boolean) {
             manageAudioFocus = (Boolean) configuration.get("manageAudioFocus");
         }
+        Log.w(TAG, "setAudioConfiguration manageAudioFocus:"+manageAudioFocus);
         setManageAudioFocus(manageAudioFocus);
 
         String audioMode = null;
         if (configuration.get("androidAudioMode") instanceof String) {
             audioMode = (String) configuration.get("androidAudioMode");
         }
+        Log.w(TAG, "setAudioConfiguration audioMode:"+audioMode);
         setAudioMode(audioMode);
 
         String focusMode = null;
         if (configuration.get("androidAudioFocusMode") instanceof String) {
             focusMode = (String) configuration.get("androidAudioFocusMode");
         }
+        Log.w(TAG, "setAudioConfiguration focusMode:"+focusMode);
         setFocusMode(focusMode);
 
         String streamType = null;
         if (configuration.get("androidAudioStreamType") instanceof String) {
             streamType = (String) configuration.get("androidAudioStreamType");
         }
+        Log.w(TAG, "setAudioConfiguration streamType:"+streamType);
         setAudioStreamType(streamType);
 
         String usageType = null;
         if (configuration.get("androidAudioAttributesUsageType") instanceof String) {
             usageType = (String) configuration.get("androidAudioAttributesUsageType");
         }
+        Log.w(TAG, "setAudioConfiguration usageType:"+usageType);
         setAudioAttributesUsageType(usageType);
 
         String contentType = null;
         if (configuration.get("androidAudioAttributesContentType") instanceof String) {
             contentType = (String) configuration.get("androidAudioAttributesContentType");
         }
+        Log.w(TAG, "setAudioConfiguration contentType:"+contentType);
         setAudioAttributesContentType(contentType);
 
         Boolean forceHandleAudioRouting = null;
@@ -326,6 +332,9 @@ public class AudioSwitchManager {
             forceHandleAudioRouting = (Boolean) configuration.get("forceHandleAudioRouting");
         }
         setForceHandleAudioRouting(forceHandleAudioRouting);
+
+
+        Log.w(TAG, "setAudioConfiguration forceHandleAudioRouting:"+forceHandleAudioRouting);
     }
 
     public void setManageAudioFocus(@Nullable Boolean manage) {

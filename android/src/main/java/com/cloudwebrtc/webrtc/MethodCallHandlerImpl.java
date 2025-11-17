@@ -240,7 +240,7 @@ public class MethodCallHandlerImpl implements MethodCallHandler, StateProvider {
                         .setUseLowLatency(useLowLatency)
                         .setUseHardwareNoiseSuppressor(useHardwareAudioProcessing);
     }
-
+    Log.w(TAG, "initialize bypassVoiceProcessing:"+bypassVoiceProcessing);
     audioDeviceModuleBuilder.setSamplesReadyCallback(recordSamplesReadyCallbackAdapter);
     audioDeviceModuleBuilder.setPlaybackSamplesReadyCallback(playbackSamplesReadyCallbackAdapter);
 
@@ -251,6 +251,7 @@ public class MethodCallHandlerImpl implements MethodCallHandler, StateProvider {
       public void onWebRtcAudioRecordSamplesReady(JavaAudioDeviceModule.AudioSamples audioSamples) {
         for(LocalTrack track : localTracks.values()) {
           if (track instanceof LocalAudioTrack) {
+            Log.w(TAG, "initialize callback track sampleRate:"+audioSamples.getSampleRate());
             ((LocalAudioTrack) track).onWebRtcAudioRecordSamplesReady(audioSamples);
           }
         }
@@ -264,6 +265,8 @@ public class MethodCallHandlerImpl implements MethodCallHandler, StateProvider {
     audioDeviceModule = audioDeviceModuleBuilder.createAudioDeviceModule();
 
     if(!bypassVoiceProcessing) {
+      final boolean enableBypassVoiceProcessing = JavaAudioDeviceModule.isBuiltInNoiseSuppressorSupported();
+      Log.w(TAG, "initialize enableBypassVoiceProcessing:"+enableBypassVoiceProcessing);
        if(JavaAudioDeviceModule.isBuiltInNoiseSuppressorSupported()) {
          audioDeviceModule.setNoiseSuppressorEnabled(true);
        }
@@ -307,6 +310,7 @@ public class MethodCallHandlerImpl implements MethodCallHandler, StateProvider {
   public void onMethodCall(MethodCall call, @NonNull Result notSafeResult) {
 
     final AnyThreadResult result = new AnyThreadResult(notSafeResult);
+    Log.d(TAG, "onMethodCall "+call.method);
     switch (call.method) {
       case "initialize": {
         int networkIgnoreMask = Options.ADAPTER_TYPE_UNKNOWN;

@@ -1,7 +1,7 @@
 package com.cloudwebrtc.webrtc.audio;
 
 import org.webrtc.ExternalAudioProcessingFactory;
-
+import android.util.Log;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.List;
@@ -32,6 +32,7 @@ public class AudioProcessingAdapter implements ExternalAudioProcessingFactory.Au
 
     @Override
     public void initialize(int sampleRateHz, int numChannels) {
+        Log.d("AudioProcessingAdapter", "WebRTC: initialize sampleRateHz:"+sampleRateHz + " numChannels:"+numChannels);
         synchronized (audioProcessors) {
             for (ExternalAudioFrameProcessing audioProcessor : audioProcessors) {
                 audioProcessor.initialize(sampleRateHz, numChannels);
@@ -41,6 +42,7 @@ public class AudioProcessingAdapter implements ExternalAudioProcessingFactory.Au
 
     @Override
     public void reset(int newRate) {
+        Log.d("AudioProcessingAdapter", "WebRTC: reset newRate:"+newRate);
         synchronized (audioProcessors) {
             for (ExternalAudioFrameProcessing audioProcessor : audioProcessors) {
                 audioProcessor.reset(newRate);
