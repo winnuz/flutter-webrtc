@@ -332,6 +332,27 @@ class RTCPeerConnectionNative extends RTCPeerConnection {
 
       String sdp = response['sdp'];
       String type = response['type'];
+      // Extract rtpmap number for opus from SDP and insert custom string after "opus/48000/2"
+      final opusPattern = 'opus/48000/2';
+      final opusIndex = sdp.indexOf(opusPattern);
+      if (opusIndex != -1) {
+        // Extract rtpmap number for opus from SDP
+        final rtpmapRegex = RegExp(r'a=rtpmap:(\d+) opus/');
+        final match = rtpmapRegex.firstMatch(sdp);
+        if (match != null) {
+          final opusRtpmapNumber = match.group(1);
+          print('WebRTC: RTCPeerConnectionNative createOffer opus rtpmap number: $opusRtpmapNumber');
+          //insert line
+          String rateLimit = '\na=fmtp:$opusRtpmapNumber maxplaybackrate=16000; sprop-maxcapturerate=16000';
+          // Insert custom string after "opus/48000/2"
+          final insertPosition = opusIndex + opusPattern.length;
+          final customString = rateLimit;
+          sdp = sdp.substring(0, insertPosition) + customString + sdp.substring(insertPosition);
+          print('WebRTC: RTCPeerConnectionNative createOffer inserted custom string after opus/48000/2');
+        }
+      }
+
+      print('WebRTC: RTCPeerConnectionNative createOffer type:$type ### sdp:$sdp ###');
       return RTCSessionDescription(sdp, type);
     } on PlatformException catch (e) {
       throw 'Unable to RTCPeerConnection::createOffer: ${e.message}';
@@ -350,6 +371,27 @@ class RTCPeerConnectionNative extends RTCPeerConnection {
 
       String sdp = response['sdp'];
       String type = response['type'];
+      // Extract rtpmap number for opus from SDP and insert custom string after "opus/48000/2"
+      final opusPattern = 'opus/48000/2';
+      final opusIndex = sdp.indexOf(opusPattern);
+      if (opusIndex != -1) {
+        // Extract rtpmap number for opus from SDP
+        final rtpmapRegex = RegExp(r'a=rtpmap:(\d+) opus/');
+        final match = rtpmapRegex.firstMatch(sdp);
+        if (match != null) {
+          final opusRtpmapNumber = match.group(1);
+          print('WebRTC: RTCPeerConnectionNative createAnswer opus rtpmap number: $opusRtpmapNumber');
+          //insert line
+          String rateLimit = '\na=fmtp:$opusRtpmapNumber maxplaybackrate=16000; sprop-maxcapturerate=16000';
+          // Insert custom string after "opus/48000/2"
+          final insertPosition = opusIndex + opusPattern.length;
+          final customString = rateLimit;
+          sdp = sdp.substring(0, insertPosition) + customString + sdp.substring(insertPosition);
+          print('WebRTC: RTCPeerConnectionNative createAnswer inserted custom string after opus/48000/2');
+        }
+      }
+
+      print('WebRTC: RTCPeerConnectionNative createOffer type:$type ### sdp:$sdp ###');
       return RTCSessionDescription(sdp, type);
     } on PlatformException catch (e) {
       throw 'Unable to RTCPeerConnection::createAnswer: ${e.message}';
