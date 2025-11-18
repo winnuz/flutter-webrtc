@@ -121,6 +121,19 @@ public class AudioSwitchManager {
      */
     private boolean forceHandleAudioRouting = false;
 
+    /**
+     * Callback interface for setting custom sample rate on audio samples.
+     */
+    public interface SampleRateCallback {
+        void setSampleRate(int sampleRate);
+    }
+
+    /**
+     * Callback to set custom sample rate. Set from MethodCallHandlerImpl to access inputSamplesInterceptor.
+     */
+    @Nullable
+    private SampleRateCallback sampleRateCallback = null;
+
     public AudioSwitchManager(@NonNull Context context) {
         this.context = context;
         this.audioManager = (AudioManager) context.getSystemService(Context.AUDIO_SERVICE);
@@ -333,8 +346,17 @@ public class AudioSwitchManager {
         }
         setForceHandleAudioRouting(forceHandleAudioRouting);
 
-
         Log.w(TAG, "setAudioConfiguration forceHandleAudioRouting:"+forceHandleAudioRouting);
+
+        // Handle sample rate setting if provided
+        Integer sampleRate = null;
+        if (configuration.get("sampleRate") instanceof Number) {
+            sampleRate = ((Number) configuration.get("sampleRate")).intValue();
+        }
+        if (sampleRate != null) {
+            Log.w(TAG, "setAudioConfiguration sampleRate:" + sampleRate);
+            setSampleRate(sampleRate);
+        }
     }
 
     public void setManageAudioFocus(@Nullable Boolean manage) {
@@ -408,6 +430,35 @@ public class AudioSwitchManager {
         if (force != null && audioSwitch != null) {
             this.forceHandleAudioRouting = force;
             Objects.requireNonNull(audioSwitch).setForceHandleAudioRouting(this.forceHandleAudioRouting);
+        }
+    }
+
+    /**
+     * Set the callback for handling sample rate changes.
+     * This should be set from MethodCallHandlerImpl to access the inputSamplesInterceptor.
+     *
+     * @param callback The callback to set, or null to remove it.
+     */
+    public void setSampleRateCallback(@Nullable SampleRateCallback callback) {
+        this.sampleRateCallback = callback;
+    }
+
+    /**
+     * Set the custom sample rate for audio samples.
+     * This will call the sampleRateCallback if it's set.
+     *
+     * @param sampleRate The desired sample rate in Hz, or null to use original rate.
+     */
+    public void setSampleRate(@Nullable Integer sampleRate) {
+        if (sampleRate != null && sampleRateCallback != null) {
+            sampleRateCallback.setSampleRate(sampleRate);
+            Log.w(TAG, "setSampleRate called with: " + sampleRate);
+        } else if (sampleRate == null && sampleRateCallback != null) {
+            // Set to 0 to use original rate
+            sampleRateCallback.setSampleRate(0);
+            Log.w(TAG, "setSampleRate called with: 0 (use original rate)");
+        } else if (sampleRateCallback == null) {
+            Log.w(TAG, "setSampleRate called but sampleRateCallback is not set");
         }
     }
 

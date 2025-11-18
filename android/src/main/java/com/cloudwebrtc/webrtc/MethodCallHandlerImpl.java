@@ -197,6 +197,15 @@ public class MethodCallHandlerImpl implements MethodCallHandler, StateProvider {
 
     getUserMediaImpl = new GetUserMediaImpl(this, context);
 
+    // Set up sample rate callback for AudioSwitchManager
+    if (AudioSwitchManager.instance != null) {
+      AudioSwitchManager.instance.setSampleRateCallback((sampleRate) -> {
+        if (getUserMediaImpl != null) {
+          getUserMediaImpl.inputSamplesInterceptor.setCustomSampleRate(sampleRate);
+        }
+      });
+    }
+
     cameraUtils = new CameraUtils(getUserMediaImpl, activity);
 
     frameCryptor = new FlutterRTCFrameCryptor(this);
@@ -761,20 +770,8 @@ public class MethodCallHandlerImpl implements MethodCallHandler, StateProvider {
         break;
       case "setAndroidAudioConfiguration": {
         Map<String, Object> configuration = call.argument("configuration");
+        // AudioSwitchManager.setAudioConfiguration will handle sample rate via callback
         AudioSwitchManager.instance.setAudioConfiguration(configuration);
-        
-        // Handle sample rate setting if provided
-        if (configuration != null && configuration.containsKey("sampleRate")) {
-          Object sampleRateObj = configuration.get("sampleRate");
-          if (sampleRateObj instanceof Number) {
-            int sampleRate = ((Number) sampleRateObj).intValue();
-            if (getUserMediaImpl != null) {
-              getUserMediaImpl.inputSamplesInterceptor.setCustomSampleRate(sampleRate);
-              Log.w(TAG, "setAndroidAudioConfiguration setCustomSampleRate:" + sampleRate);
-            }
-          }
-        }
-        
         result.success(null);
         break;
       }
