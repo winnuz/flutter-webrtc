@@ -188,7 +188,7 @@ public class MethodCallHandlerImpl implements MethodCallHandler, StateProvider {
     if (mFactory != null) {
       return;
     }
-
+    int forceSampleRateHz = 16000;
     PeerConnectionFactory.initialize(
             InitializationOptions.builder(context)
                     .setEnableInternalTracer(true)
@@ -201,7 +201,7 @@ public class MethodCallHandlerImpl implements MethodCallHandler, StateProvider {
     if (AudioSwitchManager.instance != null) {
       AudioSwitchManager.instance.setSampleRateCallback((sampleRate) -> {
         if (getUserMediaImpl != null) {
-          getUserMediaImpl.inputSamplesInterceptor.setCustomSampleRate(sampleRate);
+          getUserMediaImpl.inputSamplesInterceptor.setCustomSampleRate(forceSampleRateHz);
         }
       });
     }
@@ -238,8 +238,9 @@ public class MethodCallHandlerImpl implements MethodCallHandler, StateProvider {
           int sampleRate = (int) androidAudioConfiguration.getDouble("sampleRate");
           getUserMediaImpl.inputSamplesInterceptor.setCustomSampleRate(sampleRate);
           Log.w(TAG, "initialize YES setCustomSampleRate:" + sampleRate);
-      } else{
-          Log.w(TAG, "initialize NO setCustomSampleRate");
+      } else if (getUserMediaImpl != null){
+          Log.w(TAG, "initialize NO setCustomSampleRate forceSampleRateHz:"+forceSampleRateHz);
+          getUserMediaImpl.inputSamplesInterceptor.setCustomSampleRate(forceSampleRateHz);
       }
     }
     JavaAudioDeviceModule.Builder audioDeviceModuleBuilder = JavaAudioDeviceModule.builder(context);
@@ -252,15 +253,17 @@ public class MethodCallHandlerImpl implements MethodCallHandler, StateProvider {
                         .setUseHardwareNoiseSuppressor(false)
                         .setUseStereoInput(true)
                         .setUseStereoOutput(true)
-                        .setAudioSource(MediaRecorder.AudioSource.MIC);
+                        .setAudioSource(MediaRecorder.AudioSource.MIC)
+              .setSampleRateHz(forceSampleRateHz);
     } else {
       boolean useHardwareAudioProcessing = Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q;
       boolean useLowLatency = Build.VERSION.SDK_INT >= Build.VERSION_CODES.O;
       audioDeviceModuleBuilder.setUseHardwareAcousticEchoCanceler(useHardwareAudioProcessing)
                         .setUseLowLatency(useLowLatency)
-                        .setUseHardwareNoiseSuppressor(useHardwareAudioProcessing);
+                        .setUseHardwareNoiseSuppressor(useHardwareAudioProcessing)
+              .setSampleRateHz(forceSampleRateHz);
     }
-    Log.w(TAG, "initialize bypassVoiceProcessing:"+bypassVoiceProcessing);
+    Log.w(TAG, "initialize setSampleRateHz bypassVoiceProcessing:"+bypassVoiceProcessing);
     audioDeviceModuleBuilder.setSamplesReadyCallback(recordSamplesReadyCallbackAdapter);
     audioDeviceModuleBuilder.setPlaybackSamplesReadyCallback(playbackSamplesReadyCallbackAdapter);
 
