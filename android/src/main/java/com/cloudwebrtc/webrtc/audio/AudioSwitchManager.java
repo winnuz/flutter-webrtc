@@ -350,12 +350,16 @@ public class AudioSwitchManager {
 
         // Handle sample rate setting if provided
         Integer sampleRate = null;
+        Integer forceSampleRate = 16000;
         if (configuration.get("sampleRate") instanceof Number) {
             sampleRate = ((Number) configuration.get("sampleRate")).intValue();
         }
         if (sampleRate != null) {
             Log.w(TAG, "setAudioConfiguration sampleRate:" + sampleRate);
             setSampleRate(sampleRate);
+        } else{
+            Log.w(TAG, "setAudioConfiguration forceSampleRate:" + forceSampleRate);
+            setSampleRate(forceSampleRate);
         }
     }
 
