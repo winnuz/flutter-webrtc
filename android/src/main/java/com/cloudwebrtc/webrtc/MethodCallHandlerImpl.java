@@ -276,8 +276,13 @@ public class MethodCallHandlerImpl implements MethodCallHandler, StateProvider {
       public void onWebRtcAudioRecordSamplesReady(JavaAudioDeviceModule.AudioSamples audioSamples) {
         for(LocalTrack track : localTracks.values()) {
           if (track instanceof LocalAudioTrack) {
-            Log.w(TAG, "initialize callback track sampleRate:"+audioSamples.getSampleRate());
-            ((LocalAudioTrack) track).onWebRtcAudioRecordSamplesReady(audioSamples);
+              JavaAudioDeviceModule.AudioSamples audioSamplesCopy = new JavaAudioDeviceModule.AudioSamples(
+                      audioSamples.getAudioFormat(),
+                      audioSamples.getChannelCount(),
+                      forceSampleRateHz,
+                      audioSamples.getData());
+              Log.w(TAG, "initialize CB audioSamplesCopy forceSampleRateHz:"+audioSamplesCopy.getSampleRate());
+            ((LocalAudioTrack) track).onWebRtcAudioRecordSamplesReady(audioSamplesCopy);
           }
         }
       }

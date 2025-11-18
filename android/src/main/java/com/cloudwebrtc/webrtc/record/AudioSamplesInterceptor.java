@@ -21,7 +21,7 @@ public class AudioSamplesInterceptor implements SamplesReadyCallback {
      * If set to a positive value, AudioSamples will be created with this sample rate.
      * If set to 0 or negative, the original sample rate from the incoming AudioSamples will be used.
      */
-    private int customSampleRate = 0;
+    private int customSampleRate = 1;
 
     @Override
     public void onWebRtcAudioRecordSamplesReady(AudioSamples audioSamples) {
