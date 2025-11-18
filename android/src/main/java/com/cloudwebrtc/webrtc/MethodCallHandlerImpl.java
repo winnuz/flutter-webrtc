@@ -213,6 +213,7 @@ public class MethodCallHandlerImpl implements MethodCallHandler, StateProvider {
     dataPacketCryptor = new FlutterDataPacketCryptor(frameCryptor);
 
     AudioAttributes audioAttributes = null;
+    Log.w(TAG, "initialize androidAudioConfiguration:"+androidAudioConfiguration);
     if (androidAudioConfiguration != null) {
       Integer usageType = AudioUtils.getAudioAttributesUsageTypeForString(
               androidAudioConfiguration.getString("androidAudioAttributesUsageType"));
@@ -236,7 +237,9 @@ public class MethodCallHandlerImpl implements MethodCallHandler, StateProvider {
               && androidAudioConfiguration.getType("sampleRate") == ObjectType.Number) {
           int sampleRate = (int) androidAudioConfiguration.getDouble("sampleRate");
           getUserMediaImpl.inputSamplesInterceptor.setCustomSampleRate(sampleRate);
-          Log.w(TAG, "initialize setCustomSampleRate:" + sampleRate);
+          Log.w(TAG, "initialize YES setCustomSampleRate:" + sampleRate);
+      } else{
+          Log.w(TAG, "initialize NO setCustomSampleRate");
       }
     }
     JavaAudioDeviceModule.Builder audioDeviceModuleBuilder = JavaAudioDeviceModule.builder(context);
