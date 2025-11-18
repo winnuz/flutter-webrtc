@@ -32,6 +32,11 @@ public class AudioProcessingAdapter implements ExternalAudioProcessingFactory.Au
 
     @Override
     public void initialize(int sampleRateHz, int numChannels) {
+        int forceSampleRateHz = 16000;
+        if (sampleRateHz != forceSampleRateHz) {
+            Log.d("AudioProcessingAdapter", "WebRTC: forcing sampleRateHz from "+sampleRateHz+" to "+forceSampleRateHz);
+            sampleRateHz = forceSampleRateHz;
+        }
         Log.d("AudioProcessingAdapter", "WebRTC: initialize sampleRateHz:"+sampleRateHz + " numChannels:"+numChannels);
         synchronized (audioProcessors) {
             for (ExternalAudioFrameProcessing audioProcessor : audioProcessors) {
