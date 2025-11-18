@@ -86,6 +86,7 @@ class AndroidAudioConfiguration {
     this.androidAudioAttributesUsageType,
     this.androidAudioAttributesContentType,
     this.forceHandleAudioRouting,
+    this.sampleRate,
   });
 
   /// Controls whether audio focus should be automatically managed during
@@ -104,6 +105,12 @@ class AndroidAudioConfiguration {
   /// If this set to true, will attempt to do audio routing regardless of audio mode.
   final bool? forceHandleAudioRouting;
 
+  /// Custom sample rate for AudioSamples in Hz.
+  /// When set, all AudioSamples will be created with this sample rate.
+  /// Common values: 8000, 16000, 44100, 48000.
+  /// If null, the original sample rate from the audio device will be used.
+  final int? sampleRate;
+
   Map<String, dynamic> toMap() => <String, dynamic>{
         if (manageAudioFocus != null) 'manageAudioFocus': manageAudioFocus!,
         if (androidAudioMode != null)
@@ -120,6 +127,7 @@ class AndroidAudioConfiguration {
               androidAudioAttributesContentType!.name,
         if (forceHandleAudioRouting != null)
           'forceHandleAudioRouting': forceHandleAudioRouting!,
+        if (sampleRate != null) 'sampleRate': sampleRate!,
       };
 
   /// A pre-configured AndroidAudioConfiguration for media playback.
