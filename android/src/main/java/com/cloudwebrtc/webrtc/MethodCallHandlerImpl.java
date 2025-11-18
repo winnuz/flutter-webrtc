@@ -221,6 +221,14 @@ public class MethodCallHandlerImpl implements MethodCallHandler, StateProvider {
                   .setContentType(contentType)
                   .build();
       }
+      
+      // Set custom sample rate if provided
+      if (androidAudioConfiguration.hasKey("sampleRate") 
+              && androidAudioConfiguration.getType("sampleRate") == ObjectType.Number) {
+          int sampleRate = (int) androidAudioConfiguration.getDouble("sampleRate");
+          getUserMediaImpl.inputSamplesInterceptor.setCustomSampleRate(sampleRate);
+          Log.w(TAG, "initialize setCustomSampleRate:" + sampleRate);
+      }
     }
     JavaAudioDeviceModule.Builder audioDeviceModuleBuilder = JavaAudioDeviceModule.builder(context);
 
@@ -754,7 +762,31 @@ public class MethodCallHandlerImpl implements MethodCallHandler, StateProvider {
       case "setAndroidAudioConfiguration": {
         Map<String, Object> configuration = call.argument("configuration");
         AudioSwitchManager.instance.setAudioConfiguration(configuration);
+        
+        // Handle sample rate setting if provided
+        if (configuration != null && configuration.containsKey("sampleRate")) {
+          Object sampleRateObj = configuration.get("sampleRate");
+          if (sampleRateObj instanceof Number) {
+            int sampleRate = ((Number) sampleRateObj).intValue();
+            if (getUserMediaImpl != null) {
+              getUserMediaImpl.inputSamplesInterceptor.setCustomSampleRate(sampleRate);
+              Log.w(TAG, "setAndroidAudioConfiguration setCustomSampleRate:" + sampleRate);
+            }
+          }
+        }
+        
         result.success(null);
+        break;
+      }
+      case "setAudioSampleRate": {
+        Integer sampleRate = call.argument("sampleRate");
+        if (sampleRate != null && getUserMediaImpl != null) {
+          getUserMediaImpl.inputSamplesInterceptor.setCustomSampleRate(sampleRate);
+          Log.w(TAG, "setAudioSampleRate:" + sampleRate);
+          result.success(null);
+        } else {
+          result.error("setAudioSampleRate", "sampleRate is null or getUserMediaImpl not initialized", null);
+        }
         break;
       }
       case "enableSpeakerphone":
