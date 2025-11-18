@@ -148,6 +148,7 @@ class AndroidAudioConfiguration {
 class AndroidNativeAudioManagement {
   static Future<void> setAndroidAudioConfiguration(
       AndroidAudioConfiguration config) async {
+    print('WebRTC: setAndroidAudioConfiguration config:${config.toMap()}');
     if (WebRTC.platformIsAndroid) {
       await WebRTC.invokeMethod(
         'setAndroidAudioConfiguration',
