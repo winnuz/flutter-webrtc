@@ -281,7 +281,7 @@ public class MethodCallHandlerImpl implements MethodCallHandler, StateProvider {
                       audioSamples.getChannelCount(),
                       forceSampleRateHz,
                       audioSamples.getData());
-              Log.w(TAG, "initialize CB audioSamplesCopy forceSampleRateHz:"+audioSamplesCopy.getSampleRate());
+              //Log.w(TAG, "initialize CB audioSamplesCopy forceSampleRateHz:"+audioSamplesCopy.getSampleRate());
             ((LocalAudioTrack) track).onWebRtcAudioRecordSamplesReady(audioSamplesCopy);
           }
         }
