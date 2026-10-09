@@ -61,6 +61,8 @@ class PeerConnectionObserver implements PeerConnection.Observer, EventChannel.St
   private final RemoteTrackRegistry<MediaStreamTrack> remoteTracks =
       new RemoteTrackRegistry<>();
   final Map<String, RtpTransceiver> transceivers = new HashMap<>();
+  // Transceivers from onTrack keyed by receiver id, consumed by the onAddTrack that follows.
+  private final Map<String, RtpTransceiver> pendingTrackTransceivers = new ConcurrentHashMap<>();
   private final StateProvider stateProvider;
   private final EventChannel eventChannel;
   private EventChannel.EventSink eventSink;
@@ -107,6 +109,7 @@ class PeerConnectionObserver implements PeerConnection.Observer, EventChannel.St
     peerConnection.close();
     remoteStreams.clear();
     remoteTracks.clear();
+    pendingTrackTransceivers.clear();
     // The data channels stay registered until dispose() so that their event
     // channel handlers can be released there. Closing the peer connection
     // already closes them.
@@ -508,6 +511,10 @@ class PeerConnectionObserver implements PeerConnection.Observer, EventChannel.St
 
   @Override
   public void onTrack(RtpTransceiver transceiver) {
+    RtpReceiver receiver = transceiver.getReceiver();
+    if (receiver != null) {
+      pendingTrackTransceivers.put(receiver.id(), transceiver);
+    }
   }
 
   @Override
@@ -553,16 +560,15 @@ class PeerConnectionObserver implements PeerConnection.Observer, EventChannel.St
     params.putMap("receiver", rtpReceiverToMap(receiver));
 
     if (this.configuration.sdpSemantics == PeerConnection.SdpSemantics.UNIFIED_PLAN) {
-      List<RtpTransceiver> transceivers = peerConnection.getTransceivers();
-      for (RtpTransceiver transceiver : transceivers) {
-        if (transceiver.getReceiver() != null && receiver.id().equals(transceiver.getReceiver().id())) {
-          String transceiverId = transceiver.getMid();
-          if (null == transceiverId) {
-            transceiverId = stateProvider.getNextStreamUUID();
-            this.transceivers.put(transceiverId,transceiver);
-          }
-          params.putMap("transceiver", transceiverToMap(transceiverId, transceiver));
+      // getTransceivers() disposes wrappers the platform thread may be using, so use the one from onTrack.
+      RtpTransceiver transceiver = pendingTrackTransceivers.remove(receiver.id());
+      if (transceiver != null) {
+        String transceiverId = transceiver.getMid();
+        if (null == transceiverId) {
+          transceiverId = stateProvider.getNextStreamUUID();
+          this.transceivers.put(transceiverId,transceiver);
         }
+        params.putMap("transceiver", transceiverToMap(transceiverId, transceiver));
       }
     }
     sendEvent(params);
